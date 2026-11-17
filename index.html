@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090d18">
+  <title>HANDHOLD — Pocket Money Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="#"><span class="brand-mark">H</span><span>HANDHOLD</span></a>
+      <div class="top-actions">
+        <span class="cloud-status"><i></i> Cloud sync</span>
+        <button id="logoutBtn" class="button button-quiet hidden">Log out</button>
+      </div>
+    </header>
+
+    <section id="setupNotice" class="notice hidden">
+      <strong>One-time setup required</strong>
+      <p>Add your Supabase project URL and anon key in <code>app.js</code>, then refresh this page.</p>
+    </section>
+
+    <section id="authView" class="auth-layout">
+      <div class="intro">
+        <p class="eyebrow">YOUR MONEY. YOUR CONTROL.</p>
+        <h1>Small money.<br><span>Smart habits.</span></h1>
+        <p class="intro-copy">A simple, private place to track pocket money, everyday spending and savings — one entry at a time.</p>
+        <div class="intro-points">
+          <div><span class="point-icon">↗</span><span>Know where every rupee goes</span></div>
+          <div><span class="point-icon">◎</span><span>Save at your own pace</span></div>
+          <div><span class="point-icon">☁</span><span>Your records sync to your account</span></div>
+        </div>
+      </div>
+      <div class="auth-card">
+        <div class="auth-tabs">
+          <button id="loginTab" class="auth-tab active">Log in</button>
+          <button id="signupTab" class="auth-tab">Create account</button>
+        </div>
+        <h2 id="authTitle">Welcome back</h2>
+        <p id="authSubtitle" class="muted">Log in to see your money dashboard.</p>
+        <form id="authForm">
+          <label>Email address<input id="email" type="email" autocomplete="email" placeholder="you@example.com" required></label>
+          <label>Password<input id="password" type="password" autocomplete="current-password" placeholder="At least 6 characters" minlength="6" required></label>
+          <button id="authSubmit" class="button button-primary full-width" type="submit">Log in <span>→</span></button>
+        </form>
+        <p id="authMessage" class="form-message" aria-live="polite"></p>
+        <p class="tiny-note">Your financial records are private to your signed-in account.</p>
+      </div>
+    </section>
+
+    <section id="appView" class="hidden">
+      <div class="welcome-row">
+        <div><p class="eyebrow">YOUR PERSONAL MONEY SPACE</p><h1>Money, <span>made clear.</span></h1><p class="muted">Record only what actually happens. HANDHOLD never assumes you received money.</p></div>
+        <div class="date-chip" id="todayLabel">Today</div>
+      </div>
+
+      <section class="balance-card">
+        <div class="balance-top"><span>AVAILABLE BALANCE</span><span class="live-pill"><i></i> LIVE TOTAL</span></div>
+        <div class="balance-amount" id="availableBalance">₹0.00</div>
+        <p class="balance-caption">Money received − expenses − savings transfers</p>
+        <div class="balance-divider"></div>
+        <div class="balance-stats">
+          <div><span>Total received</span><strong id="totalIncome">₹0.00</strong></div>
+          <div><span>Total spent</span><strong id="totalExpense">₹0.00</strong></div>
+          <div><span>Total saved</span><strong id="totalSavings">₹0.00</strong></div>
+        </div>
+      </section>
+
+      <section class="quick-actions">
+        <button class="action-card income-action" data-type="income"><span class="action-symbol">＋</span><span><strong>Add pocket money</strong><small>Money actually received</small></span><b>→</b></button>
+        <button class="action-card expense-action" data-type="expense"><span class="action-symbol">−</span><span><strong>Add expense</strong><small>Lunch, travel, snacks...</small></span><b>→</b></button>
+        <button class="action-card savings-action" data-type="saving"><span class="action-symbol">↗</span><span><strong>Move to savings</strong><small>Save whenever you choose</small></span><b>→</b></button>
+      </section>
+
+      <section class="content-grid">
+        <div class="panel history-panel">
+          <div class="panel-heading"><div><p class="eyebrow">YOUR ACTIVITY</p><h2>Transaction history</h2></div><select id="historyFilter" aria-label="Filter transactions"><option value="all">All activity</option><option value="income">Money received</option><option value="expense">Expenses</option><option value="saving">Savings</option></select></div>
+          <div id="historyList" class="history-list"><div class="empty-state">Your transactions will appear here.</div></div>
+        </div>
+        <div class="side-column">
+          <div class="panel goal-panel">
+            <p class="eyebrow">YOUR NEXT MILESTONE</p><h2 id="goalTitle">First ₹1,000</h2>
+            <div class="goal-amount"><strong id="goalCurrent">₹0</strong><span id="goalTarget">of ₹1,000</span></div>
+            <div class="progress-track"><div id="goalProgress" class="progress-fill"></div></div>
+            <p id="goalCaption" class="muted small">Every rupee saved is progress.</p>
+          </div>
+          <div class="panel reminder-panel">
+            <div class="reminder-icon">◷</div><div><h3>4 PM money check</h3><p class="muted small">A reminder to record what you actually received and spent.</p></div>
+            <button id="enableReminder" class="button button-secondary full-width">Enable browser reminder</button>
+            <p id="reminderStatus" class="tiny-note">Browser reminders work while this app is open. Allow notifications when asked.</p>
+          </div>
+        </div>
+      </section>
+      <footer class="footer-note">HANDHOLD · Built for better money habits · Your entries are yours.</footer>
+    </section>
+  </main>
+
+  <div id="transactionModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-backdrop" data-close="true"></div>
+    <div class="modal-card">
+      <button id="closeModal" class="close-button" aria-label="Close">×</button>
+      <p class="eyebrow" id="modalEyebrow">NEW TRANSACTION</p>
+      <h2 id="modalTitle">Add pocket money</h2>
+      <p id="modalDescription" class="muted small">Enter only the amount you actually received.</p>
+      <form id="transactionForm">
+        <input type="hidden" id="transactionType">
+        <label>Amount (₹)<input id="amount" type="number" min="0.01" step="0.01" placeholder="e.g. 50" required></label>
+        <label id="purposeLabel">Purpose
+          <input id="purpose" type="text" maxlength="80" placeholder="e.g. Pocket money from father" required>
+        </label>
+        <button id="saveTransaction" class="button button-primary full-width" type="submit">Save transaction</button>
+        <p id="transactionMessage" class="form-message" aria-live="polite"></p>
+      </form>
+    </div>
+  </div>
+
+  <div id="celebration" class="celebration hidden">
+    <div class="celebration-card"><div class="celebration-emoji">🎉 🏆 🎉</div><p class="eyebrow">MILESTONE UNLOCKED</p><h2 id="celebrationTitle">You did it!</h2><p id="celebrationText">Your savings are growing.</p><button id="celebrationClose" class="button button-primary">Awesome!</button></div>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+</body>
+</html>
